@@ -14,7 +14,7 @@ class Item implements CacheItemInterface
 
     protected $expires;
 
-    public function __construct(string $key, string $value, bool $isHit, \DateTimeInterface $expires = null)
+    public function __construct(string $key, $value, bool $isHit = false, \DateTimeInterface $expires = null)
     {
         $this->key = $key;
         $this->value = $value;

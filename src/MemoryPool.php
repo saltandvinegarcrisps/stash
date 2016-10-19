@@ -11,7 +11,7 @@ class MemoryPool implements CacheItemPoolInterface
 
     protected $deferred;
 
-    public function __construct(array $items = [], array $deferred = [])
+    public function __construct(array $pool = [], array $deferred = [])
     {
         $this->pool = $pool;
         $this->deferred = $deferred;

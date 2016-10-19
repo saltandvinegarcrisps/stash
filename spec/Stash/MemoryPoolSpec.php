@@ -12,27 +12,27 @@ class MemoryPoolSpec extends ObjectBehavior
         $this->shouldHaveType('Stash\MemoryPool');
     }
 
-    public function is_should_get_a_item_by_key(\Stash\Item $item)
+    public function is_should_get_a_item_by_key()
     {
-        $item->beConstructedWith('foo', 'bar');
+        $item = new \Stash\Item('foo', 'bar');
         $this->beConstructedWith([
             $item->getKey() => $item,
         ]);
         $this->getItem()->shouldBe($item);
     }
 
-    public function is_should_get_all_items(\Stash\Item $item)
+    public function is_should_get_all_items()
     {
-        $item->beConstructedWith('foo', 'bar');
+        $item = new \Stash\Item('foo', 'bar');
         $this->beConstructedWith([
             $item->getKey() => $item,
         ]);
         $this->getItems()->shouldContain($item);
     }
 
-    public function is_should_get_all_items_by_keys(\Stash\Item $item)
+    public function is_should_get_all_items_by_keys()
     {
-        $item->beConstructedWith('foo', 'bar');
+        $item = new \Stash\Item('foo', 'bar');
         $this->beConstructedWith([
             $item->getKey() => $item,
         ]);

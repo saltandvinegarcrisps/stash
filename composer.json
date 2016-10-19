@@ -1,9 +1,9 @@
 {
     "require": {
-        "psr/cache": "^1.0"
+        "psr/cache": "~1"
     },
     "require-dev": {
-        "phpspec/phpspec": "~2"
+        "phpspec/phpspec": "~3"
     },
     "config": {
         "bin-dir": "bin"
