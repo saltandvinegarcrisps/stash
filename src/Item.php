@@ -98,4 +98,14 @@ class Item implements CacheItemInterface
             $this->expires = new \DateTime('now +1 year');
         }
     }
+
+    /**
+     * Returns the expiration DateTime object or null
+     *
+     * @return mixed null|object DateTime
+     */
+    public function getExpires()
+    {
+        return $this->expires;
+    }
 }
