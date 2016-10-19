@@ -1,5 +1,6 @@
 {
     "require": {
+        "php": ">=7",
         "psr/cache": "~1"
     },
     "require-dev": {

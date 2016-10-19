@@ -41,7 +41,13 @@ class RedisPool implements CacheItemPoolInterface
     {
         $value = $this->redis->get($key);
 
-        return $this->createItem($key, $value);
+        $item = $this->createItem($key, $value);
+
+        if ($item->isHit() && $ttl = $this->redis->ttl($key)) {
+            $item->expiresAfter($ttl);
+        }
+
+        return $item;
     }
 
     /**
@@ -57,6 +63,10 @@ class RedisPool implements CacheItemPoolInterface
 
         foreach ($keys as $index => $key) {
             $values[$index] = $this->createItem($key, $values[$index]);
+
+            if ($ttl = $this->redis->ttl($key)) {
+                $values[$index]->expiresAfter($ttl);
+            }
         }
 
         return $values;

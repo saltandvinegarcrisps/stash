@@ -31,6 +31,10 @@ class MemoryPool implements CacheItemPoolInterface
      */
     public function getItem($key)
     {
+        if (! $this->hasItem($key)) {
+            $this->pool[$key] = new Item($key, null, false);
+        }
+
         return $this->pool[$key];
     }
 
