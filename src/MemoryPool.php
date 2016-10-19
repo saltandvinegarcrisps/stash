@@ -7,25 +7,61 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class MemoryPool implements CacheItemPoolInterface
 {
-	protected $pool;
+    protected $pool;
 
-	public function __construct() {}
+    protected $deferred;
 
-	public function getItem($key);
+    public function __construct(array $items = [], array $deferred = [])
+    {
+        $this->pool = $pool;
+        $this->deferred = $deferred;
+    }
 
-	public function getItems(array $keys = array());
+    public function getItem($key)
+    {
+        return $this->pool[$key];
+    }
 
-	public function hasItem($key);
+    public function getItems(array $keys = [])
+    {
+        if (empty($keys)) {
+            return $this->pool;
+        }
+        return array_intersect_key($this->pool, array_fill_keys($keys, null));
+    }
 
-	public function clear();
+    public function hasItem($key)
+    {
+        return array_key_exists($key, $this->pool);
+    }
 
-	public function deleteItem($key);
+    public function clear()
+    {
+        $this->pool = [];
+    }
 
-	public function deleteItems(array $keys);
+    public function deleteItem($key)
+    {
+        unset($this->pool[$key]);
+    }
 
-	public function save(CacheItemInterface $item);
+    public function deleteItems(array $keys)
+    {
+        $this->pool = array_diff_key($this->pool, array_fill_keys($keys, null));
+    }
 
-	public function saveDeferred(CacheItemInterface $item);
+    public function save(CacheItemInterface $item)
+    {
+        $this->pool[$item->getKey()] = $item;
+    }
 
-	public function commit();
+    public function saveDeferred(CacheItemInterface $item)
+    {
+        $this->deferred[$item->getKey()] = $item;
+    }
+
+    public function commit()
+    {
+        $this->pool = array_merge($this->pool, $this->deferred);
+    }
 }
