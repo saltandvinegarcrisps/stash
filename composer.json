@@ -1,0 +1,16 @@
+{
+    "require": {
+        "psr/cache": "^1.0"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "~2"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Stash\\": "src/"
+        }
+    }
+}
