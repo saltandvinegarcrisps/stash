@@ -8,7 +8,7 @@ use Psr\Cache\CacheItemPoolInterface;
 class RedisPool implements CacheItemPoolInterface
 {
     /**
-     * @var array
+     * @var object
      */
     protected $redis;
 
