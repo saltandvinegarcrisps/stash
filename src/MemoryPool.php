@@ -102,6 +102,8 @@ class MemoryPool implements CacheItemPoolInterface
      */
     public function commit()
     {
-        $this->pool = array_merge($this->pool, $this->deferred);
+        while (! empty($this->deferred)) {
+            $this->save(array_pop($this->deferred));
+        }
     }
 }

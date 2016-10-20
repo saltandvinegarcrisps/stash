@@ -77,7 +77,7 @@ class Item implements CacheItemInterface
         if ($expiration instanceof \DateTimeInterface) {
             $this->expires = $expiration;
         } elseif (is_null($expiration)) {
-            $this->expires = new \DateTime('now +1 year');
+            $this->expires = null;
         }
 
         return $this;
@@ -94,8 +94,8 @@ class Item implements CacheItemInterface
             $this->expires = $expires;
         } elseif (is_int($time)) {
             $this->expires = new \DateTime('now +' . $time . ' seconds');
-        } elseif (is_null($expiration)) {
-            $this->expires = new \DateTime('now +1 year');
+        } elseif (is_null($time)) {
+            $this->expires = null;
         }
     }
 
@@ -107,5 +107,16 @@ class Item implements CacheItemInterface
     public function getExpires()
     {
         return $this->expires;
+    }
+
+    /**
+     * Returns true or false if the item has expired compared to argument datetime
+     *
+     * @param object
+     * @return bool
+     */
+    public function hasExpired(\DateTimeInterface $date)
+    {
+        return null === $this->expires ? false : $this->expires < $date;
     }
 }
