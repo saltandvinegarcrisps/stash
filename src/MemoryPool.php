@@ -44,9 +44,11 @@ class MemoryPool implements CacheItemPoolInterface
     public function getItems(array $keys = [])
     {
         if (empty($keys)) {
-            return $this->pool;
+            $keys = array_keys($this->pool);
         }
-        return array_intersect_key($this->pool, array_fill_keys($keys, null));
+
+        // array_intersect_key($this->pool, array_fill_keys($keys, null));
+        return array_map([$this, 'getItem'], $keys);
     }
 
     /**

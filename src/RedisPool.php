@@ -31,7 +31,11 @@ class RedisPool implements CacheItemPoolInterface
      */
     protected function createItem(string $key, $value): CacheItemInterface
     {
-        return new Item($key, false === $value ? null : $value, false === $value ? false : true);
+        if (false === $value) {
+            return new Item($key, null, false);
+        }
+
+        return new Item($key, $value, true);
     }
 
     /**

@@ -49,8 +49,8 @@ class MemoryPoolSpec extends ObjectBehavior
 
     public function it_should_get_all_items_by_keys()
     {
-        $this->getItems(['foo'])->shouldHaveCount(1);
-        $this->getItems(['baz'])->shouldHaveCount(0);
+        $this->getItems(['foo'])[0]->isHit()->shouldBe(true);
+        $this->getItems(['baz'])[0]->isHit()->shouldBe(false);
     }
 
     public function it_should_check_item_exists_by_key()
