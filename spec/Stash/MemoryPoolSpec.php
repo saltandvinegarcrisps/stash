@@ -13,6 +13,7 @@ class MemoryPoolSpec extends ObjectBehavior
     {
         return new Item($key, $value, $hit);
     }
+
     public function let()
     {
         $a = $this->createItem('foo', '1', true);
