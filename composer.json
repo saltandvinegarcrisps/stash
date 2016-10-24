@@ -4,7 +4,8 @@
         "psr/cache": "~1"
     },
     "require-dev": {
-        "phpspec/phpspec": "~3"
+        "phpspec/phpspec": "~3",
+        "friendsofphp/php-cs-fixer": "~1"
     },
     "config": {
         "bin-dir": "bin"

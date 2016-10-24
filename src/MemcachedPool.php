@@ -5,12 +5,12 @@ namespace Stash;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
-class RedisPool implements CacheItemPoolInterface
+class MemcachedPool implements CacheItemPoolInterface
 {
     /**
      * @var object
      */
-    protected $redis;
+    protected $memcached;
 
     /**
      * @var array
@@ -20,9 +20,9 @@ class RedisPool implements CacheItemPoolInterface
     /**
      * Constructor
      */
-    public function __construct(\Redis $redis, array $deferred = [])
+    public function __construct(\Memcached $memcached, array $deferred = [])
     {
-        $this->redis = $redis;
+        $this->memcached = $memcached;
         $this->deferred = $deferred;
     }
 
@@ -43,7 +43,7 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function getItem($key)
     {
-        $value = $this->redis->get($key);
+        $value = $this->memcached->get($key);
 
         return $this->createItem($key, $value);
     }
@@ -54,10 +54,10 @@ class RedisPool implements CacheItemPoolInterface
     public function getItems(array $keys = [])
     {
         if (empty($keys)) {
-            $keys = $this->redis->keys('*');
+            $keys = $this->memcached->getAllKeys();
         }
 
-        $values = $this->redis->mGet($keys);
+        $values = $this->memcached->getMulti($keys);
 
         foreach ($keys as $index => $key) {
             $values[$index] = $this->createItem($key, $values[$index]);
@@ -71,7 +71,7 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function hasItem($key)
     {
-        return $this->redis->exists($key);
+        return $this->memcached->get($key) !== false;
     }
 
     /**
@@ -79,7 +79,7 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function clear()
     {
-        $this->redis->flushAll();
+        $this->memcached->flush();
     }
 
     /**
@@ -87,7 +87,7 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function deleteItem($key)
     {
-        $this->deleteItems([$key]);
+        $this->memcached->delete($key);
     }
 
     /**
@@ -95,7 +95,7 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function deleteItems(array $keys)
     {
-        $this->redis->delete($keys);
+        $this->memcached->deleteMulti($keys);
     }
 
     /**
@@ -103,12 +103,12 @@ class RedisPool implements CacheItemPoolInterface
      */
     public function save(CacheItemInterface $item)
     {
-        $this->redis->set($item->getKey(), $item->get());
-
         if ($expires = $item->getExpires()) {
-            $this->redis->expireAt($item->getKey(), $expires->format('U'));
+            $now = time();
+            $seconds = $expires->format('U') - $now;
+            $this->memcached->set($item->getKey(), $item->get(), $seconds);
         } else {
-            $this->redis->persist($item->getKey());
+            $this->memcached->set($item->getKey(), $item->get());
         }
     }
 
