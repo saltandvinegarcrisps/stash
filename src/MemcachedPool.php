@@ -18,7 +18,7 @@ class MemcachedPool implements CacheItemPoolInterface
     protected $deferred;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct(\Memcached $memcached, array $deferred = [])
     {
@@ -27,7 +27,7 @@ class MemcachedPool implements CacheItemPoolInterface
     }
 
     /**
-     * Create a new stash item
+     * Create a new stash item.
      */
     protected function createItem(string $key, $value): CacheItemInterface
     {
@@ -125,7 +125,7 @@ class MemcachedPool implements CacheItemPoolInterface
      */
     public function commit()
     {
-        while (! empty($this->deferred)) {
+        while (!empty($this->deferred)) {
             $this->save(array_pop($this->deferred));
         }
     }

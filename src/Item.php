@@ -27,7 +27,7 @@ class Item implements CacheItemInterface
     protected $expires;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct(string $key, $value, bool $hit = false, \DateTimeInterface $expires = null)
     {
@@ -93,14 +93,14 @@ class Item implements CacheItemInterface
             $expires->add($time);
             $this->expires = $expires;
         } elseif (is_int($time)) {
-            $this->expires = new \DateTime('now +' . $time . ' seconds');
+            $this->expires = new \DateTime('now +'.$time.' seconds');
         } elseif (is_null($time)) {
             $this->expires = null;
         }
     }
 
     /**
-     * Returns the expiration DateTime object or null
+     * Returns the expiration DateTime object or null.
      *
      * @return mixed null|object DateTime
      */
@@ -110,9 +110,10 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * Returns true or false if the item has expired compared to argument datetime
+     * Returns true or false if the item has expired compared to argument datetime.
      *
      * @param object
+     *
      * @return bool
      */
     public function hasExpired(\DateTimeInterface $date)

@@ -18,7 +18,7 @@ class MemoryPool implements CacheItemPoolInterface
     protected $deferred;
 
     /**
-     * Constructor
+     * Constructor.
      */
     public function __construct(array $pool = [], array $deferred = [])
     {
@@ -31,7 +31,7 @@ class MemoryPool implements CacheItemPoolInterface
      */
     public function getItem($key)
     {
-        if (! $this->hasItem($key)) {
+        if (!$this->hasItem($key)) {
             $this->pool[$key] = new Item($key, null, false);
         }
 
@@ -104,7 +104,7 @@ class MemoryPool implements CacheItemPoolInterface
      */
     public function commit()
     {
-        while (! empty($this->deferred)) {
+        while (!empty($this->deferred)) {
             $this->save(array_pop($this->deferred));
         }
     }
