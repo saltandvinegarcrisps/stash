@@ -5,17 +5,12 @@ namespace Stash;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
-class MemoryPool implements CacheItemPoolInterface
+class MemoryPool extends AbstractPool implements CacheItemPoolInterface
 {
     /**
      * @var array
      */
     protected $pool;
-
-    /**
-     * @var array
-     */
-    protected $deferred;
 
     /**
      * Constructor.
@@ -31,11 +26,11 @@ class MemoryPool implements CacheItemPoolInterface
      */
     public function getItem($key)
     {
-        if (!$this->hasItem($key)) {
-            $this->pool[$key] = new Item($key, null, false);
+        if (\array_key_exists($key, $this->pool)) {
+            return $this->pool[$key];
         }
 
-        return $this->pool[$key];
+        return $this->createItem($key, null);
     }
 
     /**
@@ -44,25 +39,30 @@ class MemoryPool implements CacheItemPoolInterface
     public function getItems(array $keys = [])
     {
         if (empty($keys)) {
-            $keys = array_keys($this->pool);
+            $keys = \array_keys($this->pool);
         }
 
-        // array_intersect_key($this->pool, array_fill_keys($keys, null));
-        return array_map([$this, 'getItem'], $keys);
+        $values = [];
+
+        foreach ($keys as $key) {
+            $values[] = $this->getItem($key);
+        }
+
+        return $values;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasItem($key)
+    public function deleteItem($key): void
     {
-        return array_key_exists($key, $this->pool);
+        unset($this->pool[$key]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function clear()
+    public function clear(): void
     {
         $this->pool = [];
     }
@@ -70,42 +70,10 @@ class MemoryPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItem($key)
-    {
-        $this->deleteItems([$key]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function deleteItems(array $keys)
-    {
-        $this->pool = array_diff_key($this->pool, array_fill_keys($keys, null));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $item): bool
     {
         $this->pool[$item->getKey()] = $item;
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function saveDeferred(CacheItemInterface $item)
-    {
-        $this->deferred[$item->getKey()] = $item;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
-    {
-        while (!empty($this->deferred)) {
-            $this->save(array_pop($this->deferred));
-        }
+        return true;
     }
 }

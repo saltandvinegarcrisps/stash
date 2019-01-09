@@ -22,7 +22,7 @@ class Item implements CacheItemInterface
     protected $hit;
 
     /**
-     * @var object|null
+     * @var \DateTimeInterface|null
      */
     protected $expires;
 
@@ -64,7 +64,7 @@ class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function set($value)
+    public function set($value): void
     {
         $this->value = $value;
     }
@@ -76,7 +76,7 @@ class Item implements CacheItemInterface
     {
         if ($expiration instanceof \DateTimeInterface) {
             $this->expires = $expiration;
-        } elseif (is_null($expiration)) {
+        } elseif (\is_null($expiration)) {
             $this->expires = null;
         }
 
@@ -86,37 +86,35 @@ class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function expiresAfter($time)
+    public function expiresAfter($time): void
     {
         if ($time instanceof \DateInterval) {
             $expires = new \DateTime();
             $expires->add($time);
             $this->expires = $expires;
-        } elseif (is_int($time)) {
+        } elseif (\is_int($time)) {
             $this->expires = new \DateTime('now +'.$time.' seconds');
-        } elseif (is_null($time)) {
+        } elseif (\is_null($time)) {
             $this->expires = null;
         }
     }
 
     /**
-     * Returns the expiration DateTime object or null.
+     * Returns the expiration DateTimeInterface object or null.
      *
-     * @return mixed null|object DateTime
+     * @return null|\DateTimeInterface
      */
-    public function getExpires()
+    public function getExpires(): ?\DateTimeInterface
     {
         return $this->expires;
     }
-
     /**
-     * Returns true or false if the item has expired compared to argument datetime.
+     * Returns true or false if the item has expired compared to \DateTimeInterface.
      *
-     * @param object
-     *
+     * @param \DateTimeInterface $date
      * @return bool
      */
-    public function hasExpired(\DateTimeInterface $date)
+    public function hasExpired(\DateTimeInterface $date): bool
     {
         return null === $this->expires ? false : $this->expires < $date;
     }

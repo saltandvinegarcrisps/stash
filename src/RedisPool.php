@@ -5,17 +5,12 @@ namespace Stash;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
-class RedisPool implements CacheItemPoolInterface
+class RedisPool extends AbstractPool implements CacheItemPoolInterface
 {
     /**
-     * @var object
+     * @var \Redis
      */
     protected $redis;
-
-    /**
-     * @var array
-     */
-    protected $deferred;
 
     /**
      * Constructor.
@@ -27,25 +22,20 @@ class RedisPool implements CacheItemPoolInterface
     }
 
     /**
-     * Create a new stash item.
-     */
-    protected function createItem(string $key, $value): CacheItemInterface
-    {
-        if (false === $value) {
-            return new Item($key, null, false);
-        }
-
-        return new Item($key, $value, true);
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function getItem($key)
     {
         $value = $this->redis->get($key);
 
-        return $this->createItem($key, $value);
+        if (false === $value) {
+            return $this->createItem($key, null);
+        }
+
+        $ttl = $this->redis->ttl($key);
+        $expires = $ttl ? new \DateTime('now +'.$ttl.' seconds') : null;
+
+        return $this->createItem($key, $value, true, $expires);
     }
 
     /**
@@ -60,7 +50,11 @@ class RedisPool implements CacheItemPoolInterface
         $values = $this->redis->mGet($keys);
 
         foreach ($keys as $index => $key) {
-            $values[$index] = $this->createItem($key, $values[$index]);
+            if (false === $values[$index]) {
+                $values[$index] = $this->createItem($key, null);
+            } else {
+                $values[$index] = $this->createItem($key, $values[$index], true);
+            }
         }
 
         return $values;
@@ -69,15 +63,7 @@ class RedisPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function hasItem($key)
-    {
-        return $this->redis->exists($key);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function clear()
+    public function clear(): void
     {
         $this->redis->flushAll();
     }
@@ -85,7 +71,7 @@ class RedisPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItem($key)
+    public function deleteItem($key): void
     {
         $this->deleteItems([$key]);
     }
@@ -93,7 +79,7 @@ class RedisPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function deleteItems(array $keys)
+    public function deleteItems(array $keys): void
     {
         $this->redis->delete($keys);
     }
@@ -101,32 +87,16 @@ class RedisPool implements CacheItemPoolInterface
     /**
      * {@inheritdoc}
      */
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $item): bool
     {
+        $expires = $this->expiresAt($item);
+
         $this->redis->set($item->getKey(), $item->get());
 
-        if ($expires = $item->getExpires()) {
-            $this->redis->expireAt($item->getKey(), $expires->format('U'));
+        if ($expires) {
+            return $this->redis->expireAt($item->getKey(), (int) $expires->format('U'));
         } else {
-            $this->redis->persist($item->getKey());
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function saveDeferred(CacheItemInterface $item)
-    {
-        $this->deferred[] = $item;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function commit()
-    {
-        while (!empty($this->deferred)) {
-            $this->save(array_pop($this->deferred));
+            return $this->redis->persist($item->getKey());
         }
     }
 }

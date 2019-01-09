@@ -1,4 +1,5 @@
-*.phar
-*.lock
 /bin
 /vendor
+*.phar
+*.lock
+*.cache
