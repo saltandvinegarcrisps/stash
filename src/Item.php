@@ -67,6 +67,8 @@ class Item implements CacheItemInterface
     public function set($value): void
     {
         $this->value = $value;
+        
+        return $this;
     }
 
     /**
@@ -89,14 +91,14 @@ class Item implements CacheItemInterface
     public function expiresAfter($time): void
     {
         if ($time instanceof \DateInterval) {
-            $expires = new \DateTime();
-            $expires->add($time);
-            $this->expires = $expires;
+            $this->expires = (new \DateTimeImmutable())->add($time);
         } elseif (\is_int($time)) {
-            $this->expires = new \DateTime('now +'.$time.' seconds');
+            $this->expires = new \DateTimeImmutable('now +'.$time.' seconds');
         } elseif (\is_null($time)) {
             $this->expires = null;
         }
+        
+        return $this;
     }
 
     /**
