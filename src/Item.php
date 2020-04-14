@@ -64,7 +64,7 @@ class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function set($value): void
+    public function set($value)
     {
         $this->value = $value;
         
@@ -88,7 +88,7 @@ class Item implements CacheItemInterface
     /**
      * {@inheritdoc}
      */
-    public function expiresAfter($time): void
+    public function expiresAfter($time)
     {
         if ($time instanceof \DateInterval) {
             $this->expires = (new \DateTimeImmutable())->add($time);
@@ -110,6 +110,7 @@ class Item implements CacheItemInterface
     {
         return $this->expires;
     }
+    
     /**
      * Returns true or false if the item has expired compared to \DateTimeInterface.
      *
