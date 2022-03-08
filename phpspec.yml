@@ -1,0 +1,8 @@
+formatter.name: pretty
+stop_on_failure: true
+code_generation: false
+verbose: true
+extensions:
+  FriendsOfPhpSpec\PhpSpec\CodeCoverage\CodeCoverageExtension:
+    format:
+      - html

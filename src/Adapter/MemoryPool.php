@@ -1,6 +1,8 @@
 <?php
 
-namespace Stash;
+declare(strict_types=1);
+
+namespace Codin\Stash\Adapter;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -8,12 +10,13 @@ use Psr\Cache\CacheItemPoolInterface;
 class MemoryPool extends AbstractPool implements CacheItemPoolInterface
 {
     /**
-     * @var array
+     * @var array<CacheItemInterface>
      */
-    protected $pool;
+    protected array $pool;
 
     /**
-     * Constructor.
+     * @param array<CacheItemInterface> $pool
+     * @param array<CacheItemInterface> $deferred
      */
     public function __construct(array $pool = [], array $deferred = [])
     {
@@ -34,11 +37,12 @@ class MemoryPool extends AbstractPool implements CacheItemPoolInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param array<string> $keys
+     * @return array<CacheItemInterface>
      */
     public function getItems(array $keys = [])
     {
-        if (empty($keys)) {
+        if (!\count($keys)) {
             $keys = \array_keys($this->pool);
         }
 
@@ -52,25 +56,29 @@ class MemoryPool extends AbstractPool implements CacheItemPoolInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function deleteItem($key): void
+    public function deleteItem($key)
     {
         unset($this->pool[$key]);
+
+        return true;
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function clear(): void
+    public function clear()
     {
         $this->pool = [];
+
+        return true;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function save(CacheItemInterface $item): bool
+    public function save(CacheItemInterface $item)
     {
         $this->pool[$item->getKey()] = $item;
 

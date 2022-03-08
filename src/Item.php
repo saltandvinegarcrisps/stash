@@ -1,35 +1,34 @@
 <?php
 
-namespace Stash;
+declare(strict_types=1);
 
+namespace Codin\Stash;
+
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 
 class Item implements CacheItemInterface
 {
-    /**
-     * @var string
-     */
-    protected $key;
+    protected string $key;
 
     /**
      * @var mixed
      */
     protected $value;
 
-    /**
-     * @var bool
-     */
-    protected $hit;
+    protected bool $hit;
+
+    protected ?DateTimeInterface $expires;
 
     /**
-     * @var \DateTimeInterface|null
+     * @param string $key
+     * @param mixed $value
+     * @param bool $hit
+     * @param DateTimeInterface|null $expires
      */
-    protected $expires;
-
-    /**
-     * Constructor.
-     */
-    public function __construct(string $key, $value, bool $hit = false, \DateTimeInterface $expires = null)
+    public function __construct(string $key, $value, bool $hit = false, ?DateTimeInterface $expires = null)
     {
         $this->key = $key;
         $this->value = $value;
@@ -38,7 +37,7 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function getKey()
     {
@@ -46,7 +45,7 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return mixed
      */
     public function get()
     {
@@ -54,7 +53,7 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
     public function isHit()
     {
@@ -62,7 +61,8 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param mixed $value
+     * @return static
      */
     public function set($value)
     {
@@ -72,11 +72,12 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param DateTimeInterface|null $expiration
+     * @return static
      */
     public function expiresAt($expiration)
     {
-        if ($expiration instanceof \DateTimeInterface) {
+        if ($expiration instanceof DateTimeInterface) {
             $this->expires = $expiration;
         } elseif (\is_null($expiration)) {
             $this->expires = null;
@@ -86,14 +87,15 @@ class Item implements CacheItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param int|DateInterval|null $time
+     * @return static
      */
     public function expiresAfter($time)
     {
-        if ($time instanceof \DateInterval) {
-            $this->expires = (new \DateTimeImmutable())->add($time);
+        if ($time instanceof DateInterval) {
+            $this->expires = (new DateTimeImmutable())->add($time);
         } elseif (\is_int($time)) {
-            $this->expires = new \DateTimeImmutable('now +'.$time.' seconds');
+            $this->expires = new DateTimeImmutable('now +'.$time.' seconds');
         } elseif (\is_null($time)) {
             $this->expires = null;
         }
@@ -104,9 +106,9 @@ class Item implements CacheItemInterface
     /**
      * Returns the expiration DateTimeInterface object or null.
      *
-     * @return null|\DateTimeInterface
+     * @return null|DateTimeInterface
      */
-    public function getExpires(): ?\DateTimeInterface
+    public function getExpires(): ?DateTimeInterface
     {
         return $this->expires;
     }
@@ -114,11 +116,13 @@ class Item implements CacheItemInterface
     /**
      * Returns true or false if the item has expired compared to \DateTimeInterface.
      *
-     * @param \DateTimeInterface $date
+     * @param DateTimeInterface|null $context
      * @return bool
      */
-    public function hasExpired(\DateTimeInterface $date): bool
+    public function hasExpired(?DateTimeInterface $context = null): bool
     {
+        $date = $context ?? new DateTimeImmutable();
+
         return null === $this->expires ? false : $this->expires < $date;
     }
 }

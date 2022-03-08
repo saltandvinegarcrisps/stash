@@ -1,5 +1,5 @@
 {
-    "name": "rwarasaurus/stash",
+    "name": "codin/stash",
     "license": "Apache-2.0",
     "type": "library",
     "authors": [
@@ -10,19 +10,23 @@
             "role": "Developer"
         }
     ],
+    "provide": {
+        "psr/cache-implementation": "1.0",
+        "psr/simple-cache-implementation": "1.0"
+    },
     "require": {
-        "php": ">=7.2",
-        "psr/cache": "~1"
+        "php": ">=7.4",
+        "psr/cache": "^1"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "~2",
-        "phpstan/phpstan": "~0",
-        "symfony/var-dumper": "~4",
-        "phpspec/phpspec": "~5"
+        "friends-of-phpspec/phpspec-code-coverage": "^6",
+        "friendsofphp/php-cs-fixer": "^3",
+        "phpstan/phpstan": "^1",
+        "phpspec/phpspec": "^7"
     },
     "autoload": {
         "psr-4": {
-            "Stash\\": "src/"
+            "Codin\\Stash\\": "src/"
         }
     },
     "config": {
@@ -30,7 +34,7 @@
     },
     "scripts": {
         "psr": [
-            "./bin/php-cs-fixer fix ./src --allow-risky=yes --rules=@PSR2,no_unused_imports,native_function_invocation,normalize_index_brace,object_operator_without_whitespace,ordered_imports,void_return,psr4"
+            "./bin/php-cs-fixer fix . --allow-risky=yes --rules=@PSR2,no_unused_imports,ordered_imports,ordered_interfaces,single_quote,trailing_comma_in_multiline"
         ]
     }
 }

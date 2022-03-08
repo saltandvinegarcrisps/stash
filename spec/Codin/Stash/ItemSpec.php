@@ -1,10 +1,11 @@
 <?php
 
-namespace spec\Stash;
+declare(strict_types=1);
 
-use Stash\Item;
+namespace spec\Codin\Stash;
+
+use Codin\Stash\Item;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 class ItemSpec extends ObjectBehavior
 {
@@ -54,6 +55,18 @@ class ItemSpec extends ObjectBehavior
         $now = new \DateTime;
         $this->expiresAt($now);
         $this->getExpires()->format('U')->shouldBe($now->format('U'));
+    }
+
+    public function it_should_set_a_expire_null()
+    {
+        $this->expiresAt(null);
+        $this->getExpires()->shouldBe(null);
+    }
+
+    public function it_should_set_a_expire_after_null()
+    {
+        $this->expiresAfter(null);
+        $this->getExpires()->shouldBe(null);
     }
 
     public function it_should_expire_after_a_set_interval()

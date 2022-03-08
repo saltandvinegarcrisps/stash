@@ -1,35 +1,44 @@
 <?php
 
-namespace Stash;
+declare(strict_types=1);
 
+namespace Codin\Stash\Adapter;
+
+use Codin\Stash\Item;
+use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 
 abstract class AbstractPool
 {
     /**
-     * @var array
+     * @var array<CacheItemInterface>
      */
-    protected $deferred;
+    protected array $deferred;
 
     /**
-     * Create a new stash item.
+     * @param string $key
+     * @param mixed $value
+     * @param bool $hit
+     * @param DateTimeInterface|null $expires
      */
     protected function createItem(
         string $key,
         $value,
         bool $hit = false,
-        \DateTimeInterface $expires = null
+        DateTimeInterface $expires = null
     ): Item {
         return new Item($key, $value, $hit, $expires);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     * @return CacheItemInterface
      */
     abstract public function getItem($key);
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     * @return bool
      */
     public function hasItem($key)
     {
@@ -37,22 +46,26 @@ abstract class AbstractPool
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $key
+     * @return bool
      */
     abstract public function deleteItem(string $key);
 
     /**
-     * {@inheritdoc}
+     * @param array<string> $keys
+     * @return bool
      */
-    public function deleteItems(array $keys): void
+    public function deleteItems(array $keys)
     {
         foreach ($keys as $key) {
             $this->deleteItem($key);
         }
+
+        return true;
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
     public function saveDeferred(CacheItemInterface $item): bool
     {
@@ -62,38 +75,27 @@ abstract class AbstractPool
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    abstract public function save(CacheItemInterface $item): bool;
+    abstract public function save(CacheItemInterface $item);
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
-    public function commit(): void
+    public function commit()
     {
-        while (!empty($this->deferred)) {
+        while (\count($this->deferred)) {
             $this->save(\array_pop($this->deferred));
         }
+
+        return true;
     }
 
     /**
      * Commit deferred items
-     *
-     * @return void
      */
     public function __deconstuct(): void
     {
         $this->commit();
-    }
-
-    /**
-     * Get expiry datetime from cache item
-     *
-     * @param CacheItemInterface $item
-     * @return null|\DateTimeInterface
-     */
-    protected function expiresAt(CacheItemInterface $item): ?\DateTimeInterface
-    {
-        return $item instanceof Item ? $item->getExpires() : null;
     }
 }
